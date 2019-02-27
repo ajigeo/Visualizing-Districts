@@ -4,8 +4,9 @@ import re
 import numpy as np                                                               
 import matplotlib.pyplot as plt
 
+#ariyalur,kanniyakumari,krishnagiri,pudukottai,ramnad,theni,tanjore,trichy,tirupur,nellai,tiruvallur,tiruvannamali,tiruvarur,vellore must be fixed
 root = []
-dist = ['ariyalur','madurai','theni']#,'coimbatore','cuddalore','dharmapuri','dindigul','erode','kanniyakumari','karur']
+dist = ['viluppuram','virudhunagar']
 for i in dist:
 	link = urllib2.urlopen('https://'+i+'.nic.in/')
 	source = link.read()
@@ -33,8 +34,14 @@ for i in dist:
 		sorted_gen_content = sorted(gen_content)
 		if len(sorted_gen_content) == 4:
 			del sorted_gen_content[1:3]
+		elif len(sorted_gen_content) == 5:
+			sorted_gen_content = sorted_gen_content[1:2] + sorted_gen_content[4:]
 		elif len(sorted_gen_content) == 6:
 			sorted_gen_content = sorted_gen_content[2:3] + sorted_gen_content[5:]
+		elif len(sorted_gen_content) == 7:
+			sorted_gen_content = sorted_gen_content[1:2] + sorted_gen_content[6:]
+		elif len(sorted_gen_content) == 8:
+			sorted_gen_content = sorted_gen_content[2:3] + sorted_gen_content[7:]
 
 		#print sorted_gen_content
 
@@ -59,7 +66,8 @@ for i in dist:
 
 print root
 
-content = [(dist[0],root[0][2]),(dist[1],root[1][2]),(dist[2],root[2][2])]
+
+content = [(dist[0],root[0][2]),(dist[1],root[1][2])]
 
 
 dists = zip(*content)[0]
@@ -69,7 +77,3 @@ x_pos = np.arange(len(dists))
 plt.bar(x_pos,area)
 plt.legend()
 plt.show()
-'''
-index = np.arange(len(dist))
-plt.bar(dist,)
-'''
