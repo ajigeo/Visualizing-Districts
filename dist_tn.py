@@ -66,14 +66,11 @@ for i in dist:
 
 print root
 
-
-content = [(dist[0],root[0][2]),(dist[1],root[1][2])]
-
-
-dists = zip(*content)[0]
-area = zip(*content)[1]
-x_pos = np.arange(len(dists)) 
-
-plt.bar(x_pos,area)
-plt.legend()
-plt.show()
+for i in range(len(dist_details)):
+	content = [(dist[0],root[0][i]),(dist[1],root[1][i])]
+	dists = zip(*content)[0]
+	area = zip(*content)[1]
+	x_pos = np.arange(len(dists)) 
+	plt.bar(x_pos,area)
+	plt.legend()
+	plt.show()
