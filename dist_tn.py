@@ -70,7 +70,7 @@ for i in list_of_dists:
 	root.append(dist_details)
 
 print root
-'''
+
 print "\n 1 - Divisions\n 2 - Taluks\n 3 - Villages\n 4 - Area\n 5 - Population"
 
 ss = int(raw_input("enter what to plot:"))
@@ -83,4 +83,4 @@ x_pos = np.arange(len(list_of_dists))
 
 plt.bar(x_pos,y_axis)
 plt.show()
-'''
+
