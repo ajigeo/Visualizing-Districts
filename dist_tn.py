@@ -3,68 +3,108 @@ from BeautifulSoup import BeautifulSoup
 import re
 import numpy as np                                                               
 import matplotlib.pyplot as plt
+import ogr
 
-list_of_dists = ['madurai','virudhunagar','ramanathapuram','sivaganga','ariyalur','chennai','theni','dindigul','thoothukudi']
+list_of_dists = []
 root = []
 
+data = ogr.Open("new_tn.shp")
+layer = data.GetLayer()
+for i in layer:
+	j =  i.GetField("FIRST_DIST")
+	list_of_dists.append(j)
 #dist_1 = str(raw_input("Enter The district 1:"))
 #dist_2 = str(raw_input("Enter The district 2:"))
 
 #list_of_dists.append(dist_1)
 #list_of_dists.append(dist_2)
 
+
 for i in list_of_dists:
 	link = urllib2.urlopen('https://'+i+'.nic.in/')
 	source = link.read()
 	content = BeautifulSoup(source)
 
-	if i == 'ramanathapuram' or i == 'thanjavur' or i == 'vellore':
-		revenue = content.findAll(('div'),attrs={'class':'list-text green-color'})
-		for i in revenue:
-			y = i.text
+	try:
+		if i == 'ramanathapuram' or i == 'thanjavur' or i == 'vellore':
+			revenue = content.findAll(('div'),attrs={'class':'list-text green-color'})
+			for i in revenue:
+				y = i.text
 
-	elif i == 'pudukkottai':
-		revenue = content.findAll(('div'),attrs={'class':'list-text red-color'})
-		for i in revenue:
-			y = i.text
+		elif i == 'pudukkottai':
+			revenue = content.findAll(('div'),attrs={'class':'list-text red-color'})
+			for i in revenue:
+				y = i.text
 
-	elif i == 'kancheepuram': #kanchi division and taluks get omitted
-		revenue = content.find(('div'),attrs={'class':'list-text blue-color'})
-		for i in revenue:
-			y = i 
+		elif i == 'kancheepuram': #kanchi division and taluks get omitted
+			revenue = content.find(('div'),attrs={'class':'list-text blue-color'})
+			for i in revenue:
+				y = i 
 
-	else:	
-		#sometimes here if..else pudukottai,ramnad,tanjore,vellore
-		revenue = content.findAll(('div'),attrs={'class':'list-text blue-color'})
-		for i in revenue:
-			y = i.text
-	
-	rev_content = [int(x) for x in re.findall('\d+',y)]
-	sorted_rev_content = sorted(rev_content)
-	#print sorted_rev_content
-	if len(sorted_rev_content) == 4:
-		del sorted_rev_content[2]
-	if len(sorted_rev_content) == 1:
-		sorted_rev_content = [0,0] + sorted_rev_content
+		else:	
+			#sometimes here if..else pudukottai,ramnad,tanjore,vellore
+			revenue = content.findAll(('div'),attrs={'class':'list-text blue-color'})
+			for i in revenue:
+				y = i.text
+		
+		rev_content = [int(x) for x in re.findall('\d+',y)]
+		sorted_rev_content = sorted(rev_content)
+		#print sorted_rev_content
+		if len(sorted_rev_content) == 4:
+			del sorted_rev_content[2]
+		if len(sorted_rev_content) == 1:
+			sorted_rev_content = [0,0] + sorted_rev_content
 
-		#sometimes here if..else ariyalur,theni,krishn,nellai,trichy,tiruvallur,tiruvannmlai,tirupur,tiruvarur	
-	general = content.findAll(('div'),attrs = {'class':'wpb_column vc_column_container vc_col-sm-4 vc_col-has-fill'})
-	for j in general:
-		yy = j.text
-		zz = yy.replace(',', '')
+	except NameError:
+		sorted_rev_content = [0,0,0]		
+			
+	try:	#sometimes here if..else ariyalur,theni,krishn,nellai,trichy,tiruvallur,tiruvannmlai,tirupur,tiruvarur	
+		general = content.findAll(('div'),attrs = {'class':'wpb_column vc_column_container vc_col-sm-4 vc_col-has-fill'})
+		for j in general:
+			yy = j.text
+			zz = yy.replace(',', '')
 
-	gen_content = [float(u) for u in re.findall('\d+\d+\.?\d+',zz)]
-	sorted_gen_content = sorted(gen_content)
-	#print sorted_gen_content
-	if len(sorted_gen_content) == 0:
-		sorted_gen_content = [0] #tiruvannamalai area gets omitted
-	n = len(sorted_gen_content)
-	sorted_gen_content = sorted_gen_content[n-1:]
+		gen_content = [float(u) for u in re.findall('\d+\d+\.?\d+',zz)]
+		sorted_gen_content = sorted(gen_content)
+		#print sorted_gen_content
+		if len(sorted_gen_content) == 0:
+			sorted_gen_content = [0] #tiruvannamalai area gets omitted
+		n = len(sorted_gen_content)
+		sorted_gen_content = sorted_gen_content[n-1:]
 
+	except NameError:
+		sorted_gen_content = [0]	
+		
 	dist_details = sorted_rev_content + sorted_gen_content
 	root.append(dist_details)
 
-print root
+#print root
+
+layer = data.GetLayerByName('new_tn')
+layer.ResetReading
+
+field_defn = ogr.FieldDefn( "DIVSION", ogr.OFTReal )
+layer.CreateField(field_defn)
+field_defn = ogr.FieldDefn( "TALUK", ogr.OFTReal )
+layer.CreateField(field_defn)
+field_defn = ogr.FieldDefn( "VILLAGE", ogr.OFTReal )
+layer.CreateField(field_defn)
+field_defn = ogr.FieldDefn( "POPULATION", ogr.OFTReal )
+layer.CreateField(field_defn)
+
+j = 0
+for i in layer:
+	#if i == 'ariyalur':
+	i.SetField('DIVSION',root[j][0])
+	layer.SetFeature(i)
+	i.SetField('TALUK',root[j][1])
+	layer.SetFeature(i)
+	i.SetField('VILLAGE',root[j][1])
+	layer.SetFeature(i)
+	i.SetField('POPULATION',root[j][1])
+	layer.SetFeature(i)
+	j = j+1
+
 
 divisions = []
 taluks = []
@@ -81,19 +121,7 @@ while i < len(root):
 	w = root[i][3]
 	population.append(w)
 	i = i+1
-'''
-print divisions
-print taluks
-print villages
-print population
 
-
-print "\n 1 - Divisions\n 2 - Taluks\n 3 - Villages\n 4 - Area\n 5 - Population"
-
-x_axis = zip(*final)[0]
-y_axis = zip(*final)[1]
-x_pos = np.arange(len(list_of_dists)) 
-'''
 def plot_graphs(x):
 	index = np.arange(len(list_of_dists))
 	plt.bar(index,x,align='center')
@@ -101,3 +129,4 @@ def plot_graphs(x):
 	plt.show()
 
 plot_graphs(population)
+
