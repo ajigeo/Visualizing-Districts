@@ -8,11 +8,24 @@ import ogr
 list_of_dists = []
 root = []
 
-data = ogr.Open("new_tn.shp")
+data = ogr.Open("new_tn.shp",update = 1)
 layer = data.GetLayer()
 for i in layer:
 	j =  i.GetField("FIRST_DIST")
 	list_of_dists.append(j)
+    
+layer = data.GetLayerByName('new_tn')
+layer.ResetReading
+
+field_defn = ogr.FieldDefn( "DIVSION", ogr.OFTInteger )
+layer.CreateField(field_defn)
+field_defn = ogr.FieldDefn( "TALUK", ogr.OFTInteger )
+layer.CreateField(field_defn)
+field_defn = ogr.FieldDefn( "VILLAGE", ogr.OFTInteger )
+layer.CreateField(field_defn)
+field_defn = ogr.FieldDefn( "POPULATION", ogr.OFTInteger )
+layer.CreateField(field_defn)
+
 #dist_1 = str(raw_input("Enter The district 1:"))
 #dist_2 = str(raw_input("Enter The district 2:"))
 
@@ -31,7 +44,7 @@ for i in list_of_dists:
 			for i in revenue:
 				y = i.text
 
-		elif i == 'pudukkottai':
+		elif i == 'pudukkottai' or i == 'kanniyakumari':
 			revenue = content.findAll(('div'),attrs={'class':'list-text red-color'})
 			for i in revenue:
 				y = i.text
@@ -80,30 +93,19 @@ for i in list_of_dists:
 
 #print root
 
-layer = data.GetLayerByName('new_tn')
-layer.ResetReading
-
-field_defn = ogr.FieldDefn( "DIVSION", ogr.OFTReal )
-layer.CreateField(field_defn)
-field_defn = ogr.FieldDefn( "TALUK", ogr.OFTReal )
-layer.CreateField(field_defn)
-field_defn = ogr.FieldDefn( "VILLAGE", ogr.OFTReal )
-layer.CreateField(field_defn)
-field_defn = ogr.FieldDefn( "POPULATION", ogr.OFTReal )
-layer.CreateField(field_defn)
-
+data = ogr.Open("new_tn.shp",update = 1)
+layer = data.GetLayer()
 j = 0
 for i in layer:
-	#if i == 'ariyalur':
-	i.SetField('DIVSION',root[j][0])
-	layer.SetFeature(i)
-	i.SetField('TALUK',root[j][1])
-	layer.SetFeature(i)
-	i.SetField('VILLAGE',root[j][1])
-	layer.SetFeature(i)
-	i.SetField('POPULATION',root[j][1])
-	layer.SetFeature(i)
-	j = j+1
+    i.SetField('DIVSION',root[j][0])
+    layer.SetFeature(i)
+    i.SetField('TALUK',root[j][1])
+    layer.SetFeature(i)
+    i.SetField('VILLAGE',root[j][2])
+    layer.SetFeature(i)
+    i.SetField('POPULATION',root[j][3])
+    layer.SetFeature(i)
+    j = j+1
 
 
 divisions = []
@@ -111,7 +113,7 @@ taluks = []
 villages = []
 population = []
 i = 0
-while i < len(root):
+for i in range(len(root)):
 	x = root[i][0]
 	divisions.append(x)
 	y = root[i][1]
@@ -120,7 +122,7 @@ while i < len(root):
 	villages.append(z)
 	w = root[i][3]
 	population.append(w)
-	i = i+1
+
 
 def plot_graphs(x):
 	index = np.arange(len(list_of_dists))
