@@ -27,12 +27,6 @@ layer.CreateField(field_defn)
 field_defn = ogr.FieldDefn( "POPULATION", ogr.OFTInteger )
 layer.CreateField(field_defn)
 
-#dist_1 = str(raw_input("Enter The district 1:"))
-#dist_2 = str(raw_input("Enter The district 2:"))
-
-#list_of_dists.append(dist_1)
-#list_of_dists.append(dist_2)
-
 
 for i in list_of_dists:
     try:
@@ -98,7 +92,6 @@ for i in list_of_dists:
         root.append(dist_details)
 
 #print root
-
 data = ogr.Open("tamil_districts.shp",update = 1)
 layer = data.GetLayer()
 j = 0
@@ -129,31 +122,29 @@ for i in range(len(root)):
 	w = root[i][3]
 	population.append(w)
 
-def plot_graphs(x):
-	index = np.arange(len(list_of_dists))
-	plt.bar(index,x,align='center')
-	plt.xticks(index,list_of_dists,fontsize = 10,rotation = 90)
-	plt.show()
+fig = plt.figure()
+fig.set_size_inches(15,15)
+fig.suptitle('POPULATION')
+index = np.arange(len(list_of_dists))
+plt.bar(index,population,align='center')
+plt.xticks(index,list_of_dists,fontsize = 10,rotation = 90)
+fig.savefig('POP_BAR.png',dpi=1080)
 
-plt.figure(1,figsize=(12,8))
-plt.subplot2grid((2,2), (0,0))
-plt.title('DIST WISE POPULATION')
-plot_graphs(population)
+fig = plt.figure()
+fig.set_size_inches(15,15)
+fig.suptitle('VILLAGES')
+index = np.arange(len(list_of_dists))
+plt.bar(index,villages,align='center')
+plt.xticks(index,list_of_dists,fontsize = 10,rotation = 90)
+fig.savefig('VILLAGE_BAR.png',dpi=1080)
 
-plt.subplot2grid((2,2), (0,1))
-plt.title('VILLAGES IN TN')
-plot_graphs(villages)
-
+fig,ax = plt.subplots(1, figsize=(25,25))
 map_content = gp.read_file('tamil_districts.shp')
 
-plt.subplot2grid((2,2), (1,0))
-plt.title('DIST WISE POPULATION')
 map_content.plot('POPULATION',cmap='YlGn')
+plt.savefig('POP_COR.png',dpi=1080)
 
-plt.subplot2grid((2,2), (1,1))
-plt.title('VILLAGES IN TN')
+
 map_content.plot('VILLAGE',cmap='YlGnBu')
-
-plt.show()
-
+plt.savefig('VILLAGE_COR.png',dpi=1080)
 
